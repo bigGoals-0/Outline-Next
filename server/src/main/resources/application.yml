@@ -1,8 +1,12 @@
 spring:
   application:
     name: outline-next-server
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   profiles:
     active: dev
+  jpa:
+    open-in-view: false
   servlet:
     multipart:
       max-file-size: 100MB

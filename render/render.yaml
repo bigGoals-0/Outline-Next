@@ -9,10 +9,18 @@ services:
         value: prod
       - key: OUTLINE_UPLOAD_DIR
         value: /var/outline/uploads
-      - key: DATABASE_URL
+      - key: DATABASE_HOST
         fromDatabase:
           name: outline-next-postgres
-          property: connectionString
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: outline-next-postgres
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: outline-next-postgres
+          property: database
       - key: DATABASE_USERNAME
         fromDatabase:
           name: outline-next-postgres

@@ -66,18 +66,21 @@ public class FriendService {
         friendships.delete(friendship);
     }
 
+    @Transactional(readOnly = true)
     public List<FriendDtos.FriendActionResponse> friends(User user) {
         return friendships.findConnections(user, FriendshipStatus.ACCEPTED).stream()
                 .map(friendship -> FriendDtos.FriendActionResponse.from(friendship, user))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<FriendDtos.FriendActionResponse> pending(User user) {
         return friendships.findByAddresseeAndStatus(user, FriendshipStatus.PENDING).stream()
                 .map(friendship -> FriendDtos.FriendActionResponse.from(friendship, user))
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> onlineFriends(User user) {
         return friendships.findConnections(user, FriendshipStatus.ACCEPTED).stream()
                 .map(friendship -> friendship.getRequester().getId().equals(user.getId()) ? friendship.getAddressee() : friendship.getRequester())
@@ -86,6 +89,7 @@ public class FriendService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> recommendations(User user) {
         LinkedHashSet<User> recommended = new LinkedHashSet<>();
         users.findTop12ByUsernameContainingIgnoreCaseAndIdNot(user.getUsername().substring(0, Math.min(2, user.getUsername().length())), user.getId())

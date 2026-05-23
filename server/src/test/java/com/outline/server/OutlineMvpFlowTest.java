@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,10 +33,20 @@ class OutlineMvpFlowTest {
     void completeMvpFlow() throws Exception {
         JsonNode ada = register("ada", "password123", "Ada Lovelace");
         JsonNode grace = register("grace", "password123", "Grace Hopper");
+        JsonNode linus = register("linus", "password123", "Linus Torvalds");
 
         JsonNode loggedInAda = login("ada", "password123");
         String adaToken = loggedInAda.get("token").asText();
         String graceToken = grace.get("token").asText();
+        String linusToken = linus.get("token").asText();
+
+        MvcResult profileResult = mvc.perform(put("/api/users/me")
+                        .header("X-Session-Token", adaToken)
+                        .contentType("application/json")
+                        .content("{\"displayName\":\"Ada Byron\",\"bio\":\"Building the future\",\"profilePictureUrl\":\"\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        assertThat(mapper.readTree(profileResult.getResponse().getContentAsString()).get("displayName").asText()).isEqualTo("Ada Byron");
 
         MvcResult requestResult = mvc.perform(post("/api/friends/requests")
                         .header("X-Session-Token", adaToken)
@@ -46,6 +57,16 @@ class OutlineMvpFlowTest {
         long friendshipId = mapper.readTree(requestResult.getResponse().getContentAsString()).get("friendshipId").asLong();
 
         mvc.perform(post("/api/friends/" + friendshipId + "/accept").header("X-Session-Token", graceToken))
+                .andExpect(status().isOk());
+
+        MvcResult declineRequestResult = mvc.perform(post("/api/friends/requests")
+                        .header("X-Session-Token", adaToken)
+                        .contentType("application/json")
+                        .content("{\"username\":\"linus\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        long declineFriendshipId = mapper.readTree(declineRequestResult.getResponse().getContentAsString()).get("friendshipId").asLong();
+        mvc.perform(post("/api/friends/" + declineFriendshipId + "/decline").header("X-Session-Token", linusToken))
                 .andExpect(status().isOk());
 
         long graceId = grace.get("user").get("id").asLong();
