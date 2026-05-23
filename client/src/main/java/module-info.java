@@ -2,6 +2,7 @@ module com.outline.client {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.net.http;
+    requires java.desktop;
     requires com.fasterxml.jackson.databind;
 
     opens com.outline.client to javafx.fxml;

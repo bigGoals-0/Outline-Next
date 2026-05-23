@@ -29,7 +29,10 @@
                 <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
                 <VBox spacing="2" styleClass="mini-profile">
                     <Label fx:id="profileLabel" styleClass="profile-name"/>
-                    <Label fx:id="profileHandle" styleClass="muted"/>
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <TextField fx:id="profileHandle" editable="false" focusTraversable="false" styleClass="copyable-field" HBox.hgrow="ALWAYS"/>
+                        <Button text="Copy" onAction="#copyOwnUsername" styleClass="copy-button"/>
+                    </HBox>
                 </VBox>
                 <HBox spacing="8">
                     <TextField fx:id="quickSearch" promptText="Search people or add @username" onAction="#search" HBox.hgrow="ALWAYS" styleClass="input"/>
@@ -73,10 +76,15 @@
     <right>
         <VBox styleClass="right-panel" spacing="18">
             <padding><Insets top="22" right="18" bottom="18" left="18"/></padding>
+            <Label fx:id="toastLabel" text="Username copied" visible="false" managed="false" styleClass="toast"/>
             <Label text="Profile" styleClass="section-title"/>
+            <Label fx:id="detailAvatar" text="OC" styleClass="detail-avatar"/>
             <Label fx:id="detailName" text="Outline" styleClass="detail-name"/>
-            <Label fx:id="detailHandle" text="@outline" styleClass="muted"/>
-            <Label fx:id="detailBio" text="Select a friend to view details." wrapText="true" styleClass="muted"/>
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <TextField fx:id="detailHandle" text="@outline" editable="false" focusTraversable="false" styleClass="copyable-field" HBox.hgrow="ALWAYS"/>
+                <Button text="Copy" onAction="#copyDetailUsername" styleClass="copy-button"/>
+            </HBox>
+            <TextArea fx:id="detailBio" text="Select a friend to view details." editable="false" wrapText="true" prefRowCount="3" styleClass="readonly-area"/>
             <VBox spacing="8" styleClass="profile-editor">
                 <Label text="Edit your profile" styleClass="section-title"/>
                 <TextField fx:id="profileNameField" promptText="Display name" styleClass="input"/>

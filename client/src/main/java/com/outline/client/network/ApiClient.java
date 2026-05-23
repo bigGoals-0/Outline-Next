@@ -89,7 +89,7 @@ public class ApiClient {
         body.put("displayName", displayName == null ? "" : displayName.trim());
         body.put("bio", bio == null ? "" : bio.trim());
         body.put("profilePictureUrl", profilePictureUrl == null ? "" : profilePictureUrl.trim());
-        currentUser = post("/api/users/me", body, UserResponse.class);
+        currentUser = put("/api/users/me", body, UserResponse.class);
         return currentUser;
     }
 
@@ -137,6 +137,14 @@ public class ApiClient {
         HttpRequest request = base(path)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
+                .build();
+        return mapper.readValue(send(request), type);
+    }
+
+    private <T> T put(String path, Object body, Class<T> type) throws IOException, InterruptedException {
+        HttpRequest request = base(path)
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
                 .build();
         return mapper.readValue(send(request), type);
     }

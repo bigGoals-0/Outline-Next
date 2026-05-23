@@ -1,9 +1,18 @@
 package com.outline.client;
 
 import com.outline.client.network.ApiClient;
+import com.outline.client.network.dto.FriendResponse;
+import com.outline.client.ui.MainController;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Map;
+import javafx.application.Platform;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.Clipboard;
 import javafx.stage.Stage;
 
 public class OutlineClientApplication extends Application {
@@ -12,6 +21,10 @@ public class OutlineClientApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        if (desktopSmokeEnabled()) {
+            runDesktopSmoke(stage);
+            return;
+        }
         showLogin(stage);
     }
 
@@ -36,7 +49,7 @@ public class OutlineClientApplication extends Application {
         stage.requestFocus();
     }
 
-    public void showMain(Stage stage) throws Exception {
+    public MainController showMain(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/outline/client/ui/main.fxml"));
         loader.setControllerFactory(type -> {
             if (type == com.outline.client.ui.MainController.class) {
@@ -49,6 +62,7 @@ public class OutlineClientApplication extends Application {
         stage.setTitle("Outline Chat");
         stage.setScene(scene);
         stage.show();
+        return loader.getController();
     }
 
     public static void main(String[] args) {
@@ -65,5 +79,59 @@ public class OutlineClientApplication extends Application {
             return environment;
         }
         return DEFAULT_SERVER_URL;
+    }
+
+    private boolean desktopSmokeEnabled() {
+        return Boolean.getBoolean("outline.desktopSmoke")
+                || "true".equalsIgnoreCase(System.getenv("OUTLINE_DESKTOP_SMOKE"));
+    }
+
+    private void runDesktopSmoke(Stage stage) throws Exception {
+        showLogin(stage);
+        Thread.startVirtualThread(() -> {
+            String stamp = String.valueOf(Instant.now().toEpochMilli());
+            String username = "desktop" + stamp;
+            String friendUsername = "friend" + stamp;
+            String password = "password123";
+            String message = "Packaged desktop smoke message " + stamp;
+            try {
+                apiClient.register(username, password, "Desktop Smoke");
+                apiClient.updateProfile("Desktop Smoke Updated", "Profile save verified from packaged app.", null);
+                ApiClient friendClient = new ApiClient(serverUrl());
+                friendClient.register(friendUsername, password, "Smoke Friend");
+                FriendResponse request = apiClient.sendFriendRequest(friendUsername);
+                friendClient.accept(request.friendshipId());
+                apiClient.sendMessage(friendClient.currentUser().id(), message);
+                Path image = Files.createTempFile("outline-smoke-", ".png");
+                Files.write(image, Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="));
+                Map<String, Object> attachment = apiClient.upload(image);
+                String filePayload = "[[outline-file name=\"" + attachment.get("originalName")
+                        + "\" size=\"" + attachment.get("sizeBytes")
+                        + "\" type=\"" + attachment.get("contentType")
+                        + "\" url=\"" + attachment.get("downloadUrl") + "\"]]";
+                apiClient.sendMessage(friendClient.currentUser().id(), filePayload);
+                Platform.runLater(() -> {
+                    try {
+                        MainController controller = showMain(stage);
+                        controller.loadFriends();
+                        controller.copyOwnUsername();
+                        boolean copyVerified = username.equals(Clipboard.getSystemClipboard().getString());
+                        System.out.println("OUTLINE_DESKTOP_SMOKE_SUCCESS username=" + username
+                                + " friend=" + friendUsername
+                                + " profile=updated file=" + attachment.get("originalName")
+                                + " copy=" + (copyVerified ? "verified" : "failed")
+                                + " message=\"" + message + "\"");
+                    } catch (Exception exception) {
+                        System.err.println("OUTLINE_DESKTOP_SMOKE_FAILED " + exception.getMessage());
+                        exception.printStackTrace();
+                    }
+                });
+            } catch (Exception exception) {
+                Platform.runLater(() -> {
+                    System.err.println("OUTLINE_DESKTOP_SMOKE_FAILED " + exception.getMessage());
+                    exception.printStackTrace();
+                });
+            }
+        });
     }
 }
