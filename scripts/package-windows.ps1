@@ -7,7 +7,7 @@ Copy-Item client\target\outline-client-0.1.0.jar client\target\package-input\
 .\mvnw -pl client dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/package-input
 jpackage `
   --type exe `
-  --name "Outline Next" `
+  --name "Outline Chat" `
   --app-version 1.0.0 `
   --module-path client\target\package-input `
   --module com.outline.client/com.outline.client.OutlineClientApplication `

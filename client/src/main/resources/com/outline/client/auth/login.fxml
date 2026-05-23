@@ -12,30 +12,54 @@
 
 <BorderPane styleClass="login-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.outline.client.auth.LoginController">
     <left>
-        <VBox styleClass="login-brand" spacing="18">
-            <padding><Insets top="64" right="56" bottom="64" left="64"/></padding>
-            <Label text="Outline Next" styleClass="brand-title"/>
-            <Label text="A focused desktop space for fast teams, private friendships, and durable conversations." wrapText="true" styleClass="brand-copy"/>
+        <VBox styleClass="login-brand" spacing="20">
+            <padding><Insets top="54" right="52" bottom="54" left="58"/></padding>
+            <HBox spacing="12" styleClass="logo-row">
+                <Label text="OC" styleClass="logo-mark"/>
+                <VBox spacing="2">
+                    <Label text="Outline Chat" styleClass="brand-title"/>
+                    <Label text="v1.0.0" styleClass="version-label"/>
+                </VBox>
+            </HBox>
+            <Label text="A premium desktop chat space for private friends, fast DMs, and shared media." wrapText="true" styleClass="brand-copy"/>
+            <VBox spacing="12">
+                <VBox spacing="4" styleClass="feature-card">
+                    <Label text="Direct Messages" styleClass="feature-title"/>
+                    <Label text="Persistent private conversations with read states." wrapText="true" styleClass="feature-copy"/>
+                </VBox>
+                <VBox spacing="4" styleClass="feature-card">
+                    <Label text="Social Graph" styleClass="feature-title"/>
+                    <Label text="Friend requests, recommendations, presence, and profiles." wrapText="true" styleClass="feature-copy"/>
+                </VBox>
+                <VBox spacing="4" styleClass="feature-card">
+                    <Label text="File Sharing" styleClass="feature-title"/>
+                    <Label text="Upload documents, media, and quick references from desktop." wrapText="true" styleClass="feature-copy"/>
+                </VBox>
+            </VBox>
             <Region VBox.vgrow="ALWAYS"/>
-            <HBox spacing="12">
-                <Label text="Realtime" styleClass="pill"/>
-                <Label text="Private" styleClass="pill"/>
-                <Label text="Desktop" styleClass="pill"/>
+            <HBox spacing="10">
+                <Label text="Online" styleClass="status-pill"/>
+                <Label text="Secure Sessions" styleClass="pill"/>
+                <Label text="JavaFX Desktop" styleClass="pill"/>
             </HBox>
         </VBox>
     </left>
     <center>
         <VBox alignment="CENTER" styleClass="login-panel">
-            <VBox spacing="14" maxWidth="420" styleClass="auth-card">
-                <Label text="Welcome back" styleClass="auth-title"/>
-                <Label text="Sign in or create a new workspace identity." styleClass="muted"/>
+            <VBox spacing="16" maxWidth="440" styleClass="auth-card">
+                <Label text="Welcome to Outline Chat" styleClass="auth-title"/>
+                <Label text="Sign in to continue or create a profile in seconds." styleClass="muted"/>
+                <HBox spacing="8" styleClass="auth-tabs">
+                    <Button fx:id="loginTab" text="Login" onAction="#showLoginMode" styleClass="tab-button-active"/>
+                    <Button fx:id="registerTab" text="Register" onAction="#showRegisterMode" styleClass="tab-button"/>
+                </HBox>
                 <TextField fx:id="usernameField" promptText="Username" styleClass="input"/>
-                <TextField fx:id="displayNameField" promptText="Display name for registration" styleClass="input"/>
+                <TextField fx:id="displayNameField" promptText="Display name" styleClass="input"/>
                 <PasswordField fx:id="passwordField" promptText="Password" styleClass="input"/>
                 <CheckBox fx:id="rememberMe" text="Remember me"/>
                 <HBox spacing="12">
                     <Button fx:id="loginButton" text="Login" onAction="#login" defaultButton="true" styleClass="primary-button"/>
-                    <Button fx:id="registerButton" text="Register" onAction="#register" styleClass="secondary-button"/>
+                    <Button fx:id="registerButton" text="Create Account" onAction="#register" styleClass="secondary-button"/>
                 </HBox>
                 <Label fx:id="statusLabel" styleClass="status"/>
             </VBox>

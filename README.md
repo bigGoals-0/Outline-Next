@@ -1,6 +1,6 @@
-# Outline Next
+# Outline Chat
 
-Outline Next is a Java 25 desktop chat MVP with a Spring Boot backend, JavaFX desktop client, SQLite development storage, PostgreSQL production configuration, file uploads, token sessions, friend requests, direct messages, and a dark commercial-style UI.
+Outline Chat is a Java 25 desktop chat MVP with a Spring Boot backend, JavaFX desktop client, SQLite storage, file uploads, token sessions, friend requests, direct messages, and a dark commercial-style UI.
 
 ## Build
 

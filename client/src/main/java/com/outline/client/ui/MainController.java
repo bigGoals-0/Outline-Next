@@ -86,7 +86,7 @@ public class MainController {
             home.pendingRequests().forEach(request -> items.add(CenterItem.request(request)));
             Platform.runLater(() -> {
                 centerList.getItems().setAll(items);
-                chatTitle.setText("Home");
+                chatTitle.setText("Outline Chat");
                 chatSubtitle.setText("Friend recommendations, active people, and pending requests");
                 activeConversation = null;
                 setConversationEnabled(false);

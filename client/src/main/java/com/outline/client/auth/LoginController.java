@@ -23,6 +23,9 @@ public class LoginController {
     @FXML private Label statusLabel;
     @FXML private Button loginButton;
     @FXML private Button registerButton;
+    @FXML private Button loginTab;
+    @FXML private Button registerTab;
+    private boolean registerMode;
 
     public LoginController(ApiClient apiClient, Stage stage, OutlineClientApplication app) {
         this.apiClient = apiClient;
@@ -31,7 +34,43 @@ public class LoginController {
     }
 
     @FXML
+    void initialize() {
+        showLoginMode();
+    }
+
+    @FXML
+    void showLoginMode() {
+        registerMode = false;
+        displayNameField.setManaged(false);
+        displayNameField.setVisible(false);
+        loginButton.setDefaultButton(true);
+        registerButton.setDefaultButton(false);
+        loginButton.setText("Login");
+        registerButton.setText("Register");
+        setTabActive(loginTab, true);
+        setTabActive(registerTab, false);
+        statusLabel.setText("Connected to Outline Chat production.");
+    }
+
+    @FXML
+    void showRegisterMode() {
+        registerMode = true;
+        displayNameField.setManaged(true);
+        displayNameField.setVisible(true);
+        loginButton.setDefaultButton(false);
+        registerButton.setDefaultButton(true);
+        loginButton.setText("Back to Login");
+        registerButton.setText("Create Account");
+        setTabActive(loginTab, false);
+        setTabActive(registerTab, true);
+        statusLabel.setText("Choose a username and a password with 8+ characters.");
+    }
+
+    @FXML
     void login() {
+        if (registerMode) {
+            showLoginMode();
+        }
         if (!validateCredentials(false)) {
             return;
         }
@@ -40,6 +79,10 @@ public class LoginController {
 
     @FXML
     void register() {
+        if (!registerMode) {
+            showRegisterMode();
+            return;
+        }
         if (!validateCredentials(true)) {
             return;
         }
@@ -85,6 +128,13 @@ public class LoginController {
     private void setBusy(boolean busy) {
         loginButton.setDisable(busy);
         registerButton.setDisable(busy);
+        loginTab.setDisable(busy);
+        registerTab.setDisable(busy);
+    }
+
+    private void setTabActive(Button tab, boolean active) {
+        tab.getStyleClass().removeAll("tab-button", "tab-button-active");
+        tab.getStyleClass().add(active ? "tab-button-active" : "tab-button");
     }
 
     @FunctionalInterface

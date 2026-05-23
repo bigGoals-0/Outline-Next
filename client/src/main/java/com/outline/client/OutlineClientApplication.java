@@ -17,14 +17,19 @@ public class OutlineClientApplication extends Application {
 
     public void showLogin(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/outline/client/auth/login.fxml"));
-        loader.setControllerFactory(type -> new com.outline.client.auth.LoginController(apiClient, stage, this));
+        loader.setControllerFactory(type -> {
+            if (type == com.outline.client.auth.LoginController.class) {
+                return new com.outline.client.auth.LoginController(apiClient, stage, this);
+            }
+            throw new IllegalStateException("Unsupported FXML controller: " + type.getName());
+        });
         Scene scene = new Scene(loader.load(), 1180, 760);
         scene.getStylesheets().add(getClass().getResource("/styles/outline.css").toExternalForm());
-        stage.setTitle("Outline Next");
+        stage.setTitle("Outline Chat");
         stage.setMinWidth(980);
         stage.setMinHeight(680);
         stage.setScene(scene);
-        stage.setOnShown(event -> System.out.println("Outline Next login window opened."));
+        stage.setOnShown(event -> System.out.println("Outline Chat login window opened."));
         stage.show();
         stage.centerOnScreen();
         stage.toFront();
@@ -33,9 +38,15 @@ public class OutlineClientApplication extends Application {
 
     public void showMain(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/outline/client/ui/main.fxml"));
-        loader.setControllerFactory(type -> new com.outline.client.ui.MainController(apiClient, stage, this));
+        loader.setControllerFactory(type -> {
+            if (type == com.outline.client.ui.MainController.class) {
+                return new com.outline.client.ui.MainController(apiClient, stage, this);
+            }
+            throw new IllegalStateException("Unsupported FXML controller: " + type.getName());
+        });
         Scene scene = new Scene(loader.load(), 1360, 860);
         scene.getStylesheets().add(getClass().getResource("/styles/outline.css").toExternalForm());
+        stage.setTitle("Outline Chat");
         stage.setScene(scene);
         stage.show();
     }

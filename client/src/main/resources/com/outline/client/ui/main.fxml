@@ -11,12 +11,13 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane styleClass="app-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane styleClass="app-root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.outline.client.ui.MainController">
     <left>
         <HBox>
             <VBox styleClass="rail" spacing="10">
                 <padding><Insets top="18" right="12" bottom="18" left="12"/></padding>
-                <Label text="ON" styleClass="logo"/>
+                <Label text="OC" styleClass="logo"/>
+                <Label text="Chat" styleClass="rail-caption"/>
                 <Button text="Home" onAction="#loadHome" styleClass="nav-button"/>
                 <Button text="Friends" onAction="#loadFriends" styleClass="nav-button"/>
                 <Button text="Chats" onAction="#loadFriends" styleClass="nav-button"/>
@@ -48,7 +49,7 @@
             <top>
                 <VBox styleClass="chat-header" spacing="4">
                     <padding><Insets top="18" right="24" bottom="16" left="24"/></padding>
-                    <Label fx:id="chatTitle" text="Home" styleClass="chat-title"/>
+                    <Label fx:id="chatTitle" text="Outline Chat" styleClass="chat-title"/>
                     <Label fx:id="chatSubtitle" text="Recommendations, activity, requests, and quick search" styleClass="muted"/>
                 </VBox>
             </top>
