@@ -3,8 +3,10 @@ target/
 .mvn/*.tar.gz
 logs/*
 !logs/.gitkeep
+server/logs/
 data/
 uploads/
+client-login-window.png
 *.sqlite
 *.db
 .DS_Store

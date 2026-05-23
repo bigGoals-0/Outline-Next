@@ -1,6 +1,7 @@
 package com.outline.client.network;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.outline.client.network.dto.AuthResponse;
 import com.outline.client.network.dto.FriendResponse;
@@ -9,11 +10,15 @@ import com.outline.client.network.dto.MessageResponse;
 import com.outline.client.network.dto.UserResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.net.ConnectException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,13 +34,21 @@ public class ApiClient {
     }
 
     public AuthResponse register(String username, String password, String displayName) throws IOException, InterruptedException {
-        AuthResponse response = post("/api/auth/register", Map.of("username", username, "password", password, "displayName", displayName), AuthResponse.class);
+        Map<String, Object> body = new HashMap<>();
+        body.put("username", username == null ? "" : username.trim());
+        body.put("password", password == null ? "" : password);
+        body.put("displayName", displayName == null ? "" : displayName.trim());
+        AuthResponse response = post("/api/auth/register", body, AuthResponse.class);
         remember(response);
         return response;
     }
 
     public AuthResponse login(String username, String password, boolean rememberMe) throws IOException, InterruptedException {
-        AuthResponse response = post("/api/auth/login", Map.of("username", username, "password", password, "rememberMe", rememberMe), AuthResponse.class);
+        Map<String, Object> body = new HashMap<>();
+        body.put("username", username == null ? "" : username.trim());
+        body.put("password", password == null ? "" : password);
+        body.put("rememberMe", rememberMe);
+        AuthResponse response = post("/api/auth/login", body, AuthResponse.class);
         remember(response);
         return response;
     }
@@ -51,7 +64,8 @@ public class ApiClient {
     }
 
     public List<UserResponse> search(String query) throws IOException, InterruptedException {
-        return getList("/api/users/search?q=" + query.replace(" ", "%20"), new TypeReference<>() {});
+        String encoded = URLEncoder.encode(query == null ? "" : query.trim(), StandardCharsets.UTF_8);
+        return getList("/api/users/search?q=" + encoded, new TypeReference<>() {});
     }
 
     public List<FriendResponse> friends() throws IOException, InterruptedException {
@@ -64,6 +78,19 @@ public class ApiClient {
 
     public FriendResponse accept(Long id) throws IOException, InterruptedException {
         return post("/api/friends/" + id + "/accept", Map.of(), FriendResponse.class);
+    }
+
+    public FriendResponse decline(Long id) throws IOException, InterruptedException {
+        return post("/api/friends/" + id + "/decline", Map.of(), FriendResponse.class);
+    }
+
+    public UserResponse updateProfile(String displayName, String bio, String profilePictureUrl) throws IOException, InterruptedException {
+        Map<String, Object> body = new HashMap<>();
+        body.put("displayName", displayName == null ? "" : displayName.trim());
+        body.put("bio", bio == null ? "" : bio.trim());
+        body.put("profilePictureUrl", profilePictureUrl == null ? "" : profilePictureUrl.trim());
+        currentUser = post("/api/users/me", body, UserResponse.class);
+        return currentUser;
     }
 
     public MessageResponse sendMessage(Long recipientId, String content) throws IOException, InterruptedException {
@@ -123,11 +150,27 @@ public class ApiClient {
     }
 
     private String send(HttpRequest request) throws IOException, InterruptedException {
-        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response;
+        try {
+            response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (ConnectException exception) {
+            throw new IOException("Cannot reach Outline server at " + baseUrl + ". Start the backend and try again.");
+        }
         if (response.statusCode() >= 400) {
-            throw new IOException("Server returned " + response.statusCode() + ": " + response.body());
+            throw new IOException(readError(response.statusCode(), response.body()));
         }
         return response.body();
+    }
+
+    private String readError(int statusCode, String body) {
+        try {
+            JsonNode root = mapper.readTree(body);
+            if (root.hasNonNull("message")) {
+                return root.get("message").asText();
+            }
+        } catch (Exception ignored) {
+        }
+        return "Server returned " + statusCode + ".";
     }
 
     private byte[] concat(byte[] a, byte[] b, byte[] c) {

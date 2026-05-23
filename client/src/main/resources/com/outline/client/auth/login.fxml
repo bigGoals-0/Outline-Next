@@ -35,7 +35,7 @@
                 <CheckBox fx:id="rememberMe" text="Remember me"/>
                 <HBox spacing="12">
                     <Button fx:id="loginButton" text="Login" onAction="#login" defaultButton="true" styleClass="primary-button"/>
-                    <Button text="Register" onAction="#register" styleClass="secondary-button"/>
+                    <Button fx:id="registerButton" text="Register" onAction="#register" styleClass="secondary-button"/>
                 </HBox>
                 <Label fx:id="statusLabel" styleClass="status"/>
             </VBox>

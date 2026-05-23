@@ -22,6 +22,7 @@ public class LoginController {
     @FXML private CheckBox rememberMe;
     @FXML private Label statusLabel;
     @FXML private Button loginButton;
+    @FXML private Button registerButton;
 
     public LoginController(ApiClient apiClient, Stage stage, OutlineClientApplication app) {
         this.apiClient = apiClient;
@@ -31,16 +32,36 @@ public class LoginController {
 
     @FXML
     void login() {
+        if (!validateCredentials(false)) {
+            return;
+        }
         runAuth(() -> apiClient.login(usernameField.getText(), passwordField.getText(), rememberMe.isSelected()));
     }
 
     @FXML
     void register() {
+        if (!validateCredentials(true)) {
+            return;
+        }
         runAuth(() -> apiClient.register(usernameField.getText(), passwordField.getText(), displayNameField.getText()));
     }
 
+    private boolean validateCredentials(boolean registering) {
+        String username = usernameField.getText() == null ? "" : usernameField.getText().trim();
+        String password = passwordField.getText() == null ? "" : passwordField.getText();
+        if (username.length() < 3) {
+            statusLabel.setText("Username must be at least 3 characters.");
+            return false;
+        }
+        if (password.length() < 8) {
+            statusLabel.setText(registering ? "Password must be at least 8 characters." : "Enter your password.");
+            return false;
+        }
+        return true;
+    }
+
     private void runAuth(AuthTask task) {
-        loginButton.setDisable(true);
+        setBusy(true);
         statusLabel.setText("Connecting...");
         Thread.startVirtualThread(() -> {
             try {
@@ -54,11 +75,16 @@ public class LoginController {
                 });
             } catch (Exception exception) {
                 Platform.runLater(() -> {
-                    loginButton.setDisable(false);
+                    setBusy(false);
                     statusLabel.setText(exception.getMessage());
                 });
             }
         });
+    }
+
+    private void setBusy(boolean busy) {
+        loginButton.setDisable(busy);
+        registerButton.setDisable(busy);
     }
 
     @FunctionalInterface
