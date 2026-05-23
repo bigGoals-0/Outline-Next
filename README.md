@@ -21,19 +21,20 @@ Start the backend:
 Start the JavaFX client in a second terminal:
 
 ```bash
-./mvnw -pl client javafx:run
+./mvnw -pl client javafx:run -Doutline.server=http://localhost:8080
 ```
 
-Point the desktop client at a deployed backend with either:
+By default the desktop client targets the production backend:
 
-```bash
-OUTLINE_SERVER_URL=https://outline-next-server.onrender.com ./mvnw -pl client javafx:run
+```text
+https://outline-next-server.onrender.com
 ```
 
-or:
+Override the backend URL for local development or staging with either:
 
 ```bash
-./mvnw -pl client javafx:run -Doutline.server=https://outline-next-server.onrender.com
+OUTLINE_SERVER_URL=http://localhost:8080 ./mvnw -pl client javafx:run
+./mvnw -pl client javafx:run -Doutline.server=http://localhost:8080
 ```
 
 Use register from the login screen to create users, then add friends by username from the main search bar.
@@ -49,14 +50,12 @@ Authenticated endpoints require `X-Session-Token`.
 
 ## Deployment
 
-Render deployment is configured in `render/render.yaml`; the backend Docker image uses `SPRING_PROFILES_ACTIVE=prod` and expects PostgreSQL environment variables from the Render managed database:
+Render deployment is configured in root-level `render.yaml` and `render/render.yaml`. The backend Docker image uses `SPRING_PROFILES_ACTIVE=prod` and runs on SQLite for a single free Render Web Service.
 
-- `DATABASE_HOST`
-- `DATABASE_PORT`
-- `DATABASE_NAME`
-- `DATABASE_USERNAME`
-- `DATABASE_PASSWORD`
-- `OUTLINE_UPLOAD_DIR`
+Render environment variables:
+
+- `SPRING_PROFILES_ACTIVE=prod`
+- `OUTLINE_UPLOAD_DIR=/var/outline/uploads`
 
 The configured service name is `outline-next-server`, which Render exposes at:
 

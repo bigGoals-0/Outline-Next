@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class OutlineClientApplication extends Application {
-    private static final String DEFAULT_SERVER_URL = "http://localhost:8080";
+    private static final String DEFAULT_SERVER_URL = "https://outline-next-server.onrender.com";
     private final ApiClient apiClient = new ApiClient(serverUrl());
 
     @Override

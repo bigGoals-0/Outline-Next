@@ -1,4 +1,5 @@
 target/
+dist/
 .mvn/apache-maven-*/
 .mvn/*.tar.gz
 logs/*
