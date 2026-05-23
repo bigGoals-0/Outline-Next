@@ -24,6 +24,18 @@ Start the JavaFX client in a second terminal:
 ./mvnw -pl client javafx:run
 ```
 
+Point the desktop client at a deployed backend with either:
+
+```bash
+OUTLINE_SERVER_URL=https://outline-next-server.onrender.com ./mvnw -pl client javafx:run
+```
+
+or:
+
+```bash
+./mvnw -pl client javafx:run -Doutline.server=https://outline-next-server.onrender.com
+```
+
 Use register from the login screen to create users, then add friends by username from the main search bar.
 
 ## API Smoke Flow
@@ -37,12 +49,20 @@ Authenticated endpoints require `X-Session-Token`.
 
 ## Deployment
 
-Render deployment is configured in `render/render.yaml`; the backend Docker image uses `SPRING_PROFILES_ACTIVE=prod` and expects PostgreSQL environment variables:
+Render deployment is configured in `render/render.yaml`; the backend Docker image uses `SPRING_PROFILES_ACTIVE=prod` and expects PostgreSQL environment variables from the Render managed database:
 
-- `DATABASE_URL`
+- `DATABASE_HOST`
+- `DATABASE_PORT`
+- `DATABASE_NAME`
 - `DATABASE_USERNAME`
 - `DATABASE_PASSWORD`
 - `OUTLINE_UPLOAD_DIR`
+
+The configured service name is `outline-next-server`, which Render exposes at:
+
+```text
+https://outline-next-server.onrender.com
+```
 
 ## Packaging
 

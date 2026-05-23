@@ -7,7 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class OutlineClientApplication extends Application {
-    private final ApiClient apiClient = new ApiClient(System.getProperty("outline.server", "http://localhost:8080"));
+    private static final String DEFAULT_SERVER_URL = "http://localhost:8080";
+    private final ApiClient apiClient = new ApiClient(serverUrl());
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -41,5 +42,17 @@ public class OutlineClientApplication extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private String serverUrl() {
+        String property = System.getProperty("outline.server");
+        if (property != null && !property.isBlank()) {
+            return property;
+        }
+        String environment = System.getenv("OUTLINE_SERVER_URL");
+        if (environment != null && !environment.isBlank()) {
+            return environment;
+        }
+        return DEFAULT_SERVER_URL;
     }
 }
