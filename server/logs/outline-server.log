@@ -1,0 +1,103 @@
+2026-05-23T10:44:12.014+05:30  INFO 33010 --- [outline-next-server] [main] com.outline.server.OutlineMvpFlowTest    : Starting OutlineMvpFlowTest using Java 25 with PID 33010 (started by 29jlee1-MS in /Users/29jlee1-MS/Documents/Codex/2026-05-22/you-are-a-senior-software-architect/Outline-Next/server)
+2026-05-23T10:44:12.018+05:30  INFO 33010 --- [outline-next-server] [main] com.outline.server.OutlineMvpFlowTest    : The following 1 profile is active: "dev"
+2026-05-23T10:44:12.455+05:30  INFO 33010 --- [outline-next-server] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-23T10:44:12.505+05:30  INFO 33010 --- [outline-next-server] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 40 ms. Found 5 JPA repository interfaces.
+2026-05-23T10:44:12.696+05:30  INFO 33010 --- [outline-next-server] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-23T10:44:12.715+05:30  INFO 33010 --- [outline-next-server] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.15.Final
+2026-05-23T10:44:12.727+05:30  INFO 33010 --- [outline-next-server] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-23T10:44:12.838+05:30  INFO 33010 --- [outline-next-server] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-23T10:44:12.851+05:30  INFO 33010 --- [outline-next-server] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-23T10:44:13.279+05:30  INFO 33010 --- [outline-next-server] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.sqlite.jdbc4.JDBC4Connection@7b2e931
+2026-05-23T10:44:13.280+05:30  INFO 33010 --- [outline-next-server] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-23T10:44:13.299+05:30  INFO 33010 --- [outline-next-server] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 3.50.1
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-23T10:44:13.643+05:30  INFO 33010 --- [outline-next-server] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-23T10:44:13.652+05:30  INFO 33010 --- [outline-next-server] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-23T10:44:13.807+05:30  INFO 33010 --- [outline-next-server] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-23T10:44:14.396+05:30  WARN 33010 --- [outline-next-server] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-23T10:44:14.542+05:30  INFO 33010 --- [outline-next-server] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-05-23T10:44:14.600+05:30  WARN 33010 --- [outline-next-server] [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 5ed95367-4fb2-436a-bd09-35f5f9044db8
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-23T10:44:14.614+05:30  INFO 33010 --- [outline-next-server] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-23T10:44:14.793+05:30  INFO 33010 --- [outline-next-server] [main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-05-23T10:44:14.793+05:30  INFO 33010 --- [outline-next-server] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-23T10:44:14.794+05:30  INFO 33010 --- [outline-next-server] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-05-23T10:44:14.819+05:30  INFO 33010 --- [outline-next-server] [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-05-23T10:44:14.820+05:30  INFO 33010 --- [outline-next-server] [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@485aa0d9]]
+2026-05-23T10:44:14.821+05:30  INFO 33010 --- [outline-next-server] [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-05-23T10:44:14.832+05:30  INFO 33010 --- [outline-next-server] [main] com.outline.server.OutlineMvpFlowTest    : Started OutlineMvpFlowTest in 2.965 seconds (process running for 3.87)
+2026-05-23T10:44:16.253+05:30  INFO 33010 --- [outline-next-server] [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-05-23T10:44:16.254+05:30  INFO 33010 --- [outline-next-server] [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@485aa0d9]]
+2026-05-23T10:44:16.254+05:30  INFO 33010 --- [outline-next-server] [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-05-23T10:44:16.257+05:30  INFO 33010 --- [outline-next-server] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-23T10:44:16.259+05:30  INFO 33010 --- [outline-next-server] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-23T10:44:16.261+05:30  INFO 33010 --- [outline-next-server] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-05-23T10:44:30.571+05:30  INFO 33185 --- [outline-next-server] [main] c.o.server.OutlineServerApplication      : Starting OutlineServerApplication using Java 25 with PID 33185 (/Users/29jlee1-MS/Documents/Codex/2026-05-22/you-are-a-senior-software-architect/Outline-Next/server/target/classes started by 29jlee1-MS in /Users/29jlee1-MS/Documents/Codex/2026-05-22/you-are-a-senior-software-architect/Outline-Next/server)
+2026-05-23T10:44:30.572+05:30  INFO 33185 --- [outline-next-server] [main] c.o.server.OutlineServerApplication      : The following 1 profile is active: "dev"
+2026-05-23T10:44:30.950+05:30  INFO 33185 --- [outline-next-server] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-23T10:44:30.986+05:30  INFO 33185 --- [outline-next-server] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 31 ms. Found 5 JPA repository interfaces.
+2026-05-23T10:44:31.168+05:30  INFO 33185 --- [outline-next-server] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-23T10:44:31.173+05:30  INFO 33185 --- [outline-next-server] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-23T10:44:31.174+05:30  INFO 33185 --- [outline-next-server] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.41]
+2026-05-23T10:44:31.197+05:30  INFO 33185 --- [outline-next-server] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-23T10:44:31.198+05:30  INFO 33185 --- [outline-next-server] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 609 ms
+2026-05-23T10:44:31.284+05:30  INFO 33185 --- [outline-next-server] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-23T10:44:31.313+05:30  INFO 33185 --- [outline-next-server] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.15.Final
+2026-05-23T10:44:31.325+05:30  INFO 33185 --- [outline-next-server] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-23T10:44:31.434+05:30  INFO 33185 --- [outline-next-server] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-23T10:44:31.447+05:30  INFO 33185 --- [outline-next-server] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-23T10:44:31.641+05:30  INFO 33185 --- [outline-next-server] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.sqlite.jdbc4.JDBC4Connection@4c2bea52
+2026-05-23T10:44:31.642+05:30  INFO 33185 --- [outline-next-server] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-23T10:44:31.662+05:30  INFO 33185 --- [outline-next-server] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 3.50.1
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-23T10:44:31.959+05:30  INFO 33185 --- [outline-next-server] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-23T10:44:31.972+05:30  INFO 33185 --- [outline-next-server] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-23T10:44:32.121+05:30  INFO 33185 --- [outline-next-server] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-23T10:44:32.747+05:30  WARN 33185 --- [outline-next-server] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-23T10:44:32.835+05:30  INFO 33185 --- [outline-next-server] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-05-23T10:44:32.849+05:30  WARN 33185 --- [outline-next-server] [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 6c837fa4-ea6d-4acb-b050-82218c4da783
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-23T10:44:32.852+05:30  INFO 33185 --- [outline-next-server] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-23T10:44:32.990+05:30  INFO 33185 --- [outline-next-server] [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-05-23T10:44:32.990+05:30  INFO 33185 --- [outline-next-server] [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@62144e81]]
+2026-05-23T10:44:32.990+05:30  INFO 33185 --- [outline-next-server] [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-05-23T10:44:33.006+05:30  INFO 33185 --- [outline-next-server] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-05-23T10:44:33.012+05:30  INFO 33185 --- [outline-next-server] [main] c.o.server.OutlineServerApplication      : Started OutlineServerApplication in 2.627 seconds (process running for 2.819)
+2026-05-23T10:45:33.002+05:30  INFO 33185 --- [outline-next-server] [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-05-23T10:57:56.286+05:30  INFO 33185 --- [outline-next-server] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-23T10:57:56.286+05:30  INFO 33185 --- [outline-next-server] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-23T10:57:56.294+05:30  INFO 33185 --- [outline-next-server] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 7 ms
+2026-05-23T11:15:33.020+05:30  INFO 33185 --- [outline-next-server] [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 2, active threads = 1, queued tasks = 0, completed tasks = 1]
+2026-05-23T11:45:33.038+05:30  INFO 33185 --- [outline-next-server] [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 3, active threads = 1, queued tasks = 0, completed tasks = 2]
+2026-05-23T12:15:33.076+05:30  INFO 33185 --- [outline-next-server] [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 4, active threads = 1, queued tasks = 0, completed tasks = 3]
+2026-05-23T12:45:33.114+05:30  INFO 33185 --- [outline-next-server] [MessageBroker-3] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 5, active threads = 1, queued tasks = 0, completed tasks = 4]
+2026-05-23T13:15:33.149+05:30  INFO 33185 --- [outline-next-server] [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 6, active threads = 1, queued tasks = 0, completed tasks = 5]
+2026-05-23T13:23:41.548+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m8s271ms).
+2026-05-23T13:26:55.920+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m44s361ms).
+2026-05-23T13:29:40.213+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m44s292ms).
+2026-05-23T13:31:22.474+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m12s242ms).
+2026-05-23T13:35:25.836+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=4m3s362ms).
+2026-05-23T13:38:05.433+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m9s577ms).
+2026-05-23T13:42:30.932+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m55s482ms).
+2026-05-23T13:45:15.984+05:30  WARN 33185 --- [outline-next-server] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m45s52ms).
+2026-05-23T14:04:16.054+05:30  INFO 33185 --- [outline-next-server] [MessageBroker-4] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 7, active threads = 1, queued tasks = 0, completed tasks = 6]

@@ -1,0 +1,12 @@
+FROM eclipse-temurin:25-jdk AS build
+WORKDIR /app
+COPY . .
+RUN ./mvnw -pl server -am -DskipTests package
+
+FROM eclipse-temurin:25-jre
+WORKDIR /app
+RUN mkdir -p /var/outline/uploads logs
+COPY --from=build /app/server/target/outline-server-0.1.0.jar /app/outline-server.jar
+ENV SPRING_PROFILES_ACTIVE=prod
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app/outline-server.jar"]

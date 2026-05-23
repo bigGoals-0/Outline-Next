@@ -1,0 +1,12 @@
+target/
+.mvn/apache-maven-*/
+.mvn/*.tar.gz
+logs/*
+!logs/.gitkeep
+data/
+uploads/
+*.sqlite
+*.db
+.DS_Store
+*.iml
+.idea/

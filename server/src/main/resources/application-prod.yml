@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+outline:
+  debug:
+    enabled: false
+  storage:
+    upload-dir: ${OUTLINE_UPLOAD_DIR:/var/outline/uploads}
+logging:
+  level:
+    com.outline: INFO

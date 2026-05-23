@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:outline-dev.sqlite
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    show-sql: false
+  sql:
+    init:
+      mode: never
+outline:
+  debug:
+    enabled: true

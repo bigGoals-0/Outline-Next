@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: outline-next-server
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+server:
+  port: ${PORT:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+outline:
+  storage:
+    upload-dir: ${OUTLINE_UPLOAD_DIR:uploads}
+  debug:
+    enabled: ${OUTLINE_DEBUG:true}
+logging:
+  file:
+    name: logs/outline-server.log
+  level:
+    com.outline: INFO
