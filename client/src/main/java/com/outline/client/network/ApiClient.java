@@ -11,20 +11,25 @@ import com.outline.client.network.dto.UserResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.net.ConnectException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ApiClient {
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(8);
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(18);
     private final String baseUrl;
-    private final HttpClient http = HttpClient.newHttpClient();
+    private final HttpClient http = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
     private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
     private String token;
     private UserResponse currentUser;
@@ -39,6 +44,7 @@ public class ApiClient {
         body.put("password", password == null ? "" : password);
         body.put("displayName", displayName == null ? "" : displayName.trim());
         AuthResponse response = post("/api/auth/register", body, AuthResponse.class);
+        validateAuth(response);
         remember(response);
         return response;
     }
@@ -49,8 +55,14 @@ public class ApiClient {
         body.put("password", password == null ? "" : password);
         body.put("rememberMe", rememberMe);
         AuthResponse response = post("/api/auth/login", body, AuthResponse.class);
+        validateAuth(response);
         remember(response);
         return response;
+    }
+
+    public boolean health() throws IOException, InterruptedException {
+        JsonNode node = get("/actuator/health", JsonNode.class);
+        return node.hasNonNull("status") && "UP".equalsIgnoreCase(node.get("status").asText());
     }
 
     public void logout() throws IOException, InterruptedException {
@@ -106,7 +118,7 @@ public class ApiClient {
         byte[] fileBytes = Files.readAllBytes(path);
         String head = "--" + boundary + "\r\n"
                 + "Content-Disposition: form-data; name=\"file\"; filename=\"" + path.getFileName() + "\"\r\n"
-                + "Content-Type: application/octet-stream\r\n\r\n";
+                + "Content-Type: " + contentType(path) + "\r\n\r\n";
         String tail = "\r\n--" + boundary + "--\r\n";
         byte[] body = concat(head.getBytes(), fileBytes, tail.getBytes());
         HttpRequest request = base("/api/files")
@@ -120,9 +132,19 @@ public class ApiClient {
         return currentUser;
     }
 
+    public String baseUrl() {
+        return baseUrl;
+    }
+
     private void remember(AuthResponse response) {
         this.token = response.token();
         this.currentUser = response.user();
+    }
+
+    private void validateAuth(AuthResponse response) throws IOException {
+        if (response == null || response.token() == null || response.token().isBlank() || response.user() == null) {
+            throw new IOException("Unexpected authentication response. Please try again.");
+        }
     }
 
     private <T> T get(String path, Class<T> type) throws IOException, InterruptedException {
@@ -150,7 +172,7 @@ public class ApiClient {
     }
 
     private HttpRequest.Builder base(String path) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(baseUrl + path));
+        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(baseUrl + path)).timeout(REQUEST_TIMEOUT);
         if (token != null) {
             builder.header("X-Session-Token", token);
         }
@@ -161,8 +183,10 @@ public class ApiClient {
         HttpResponse<String> response;
         try {
             response = http.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (ConnectException exception) {
-            throw new IOException("Cannot reach Outline server at " + baseUrl + ". Start the backend and try again.");
+        } catch (HttpConnectTimeoutException | ConnectException exception) {
+            throw new IOException("Connection timed out. Outline Chat could not reach " + baseUrl + ".");
+        } catch (HttpTimeoutException exception) {
+            throw new IOException("Request timed out. The server is reachable but did not answer quickly enough.");
         }
         if (response.statusCode() >= 400) {
             throw new IOException(readError(response.statusCode(), response.body()));
@@ -179,6 +203,15 @@ public class ApiClient {
         } catch (Exception ignored) {
         }
         return "Server returned " + statusCode + ".";
+    }
+
+    private String contentType(Path path) {
+        try {
+            String detected = Files.probeContentType(path);
+            return detected == null || detected.isBlank() ? "application/octet-stream" : detected;
+        } catch (IOException exception) {
+            return "application/octet-stream";
+        }
     }
 
     private byte[] concat(byte[] a, byte[] b, byte[] c) {

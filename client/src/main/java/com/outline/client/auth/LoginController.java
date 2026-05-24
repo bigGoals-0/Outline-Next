@@ -2,6 +2,7 @@ package com.outline.client.auth;
 
 import com.outline.client.OutlineClientApplication;
 import com.outline.client.network.ApiClient;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -10,17 +11,20 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class LoginController {
     private final ApiClient apiClient;
     private final Stage stage;
     private final OutlineClientApplication app;
+    private int connectionAttempts;
 
     @FXML private TextField usernameField;
     @FXML private TextField displayNameField;
     @FXML private PasswordField passwordField;
     @FXML private CheckBox rememberMe;
     @FXML private Label statusLabel;
+    @FXML private Label connectionStatusLabel;
     @FXML private Button loginButton;
     @FXML private Button registerButton;
     @FXML private Button loginTab;
@@ -36,6 +40,7 @@ public class LoginController {
     @FXML
     void initialize() {
         showLoginMode();
+        refreshConnectionStatus();
     }
 
     @FXML
@@ -49,7 +54,7 @@ public class LoginController {
         registerButton.setText("Register");
         setTabActive(loginTab, true);
         setTabActive(registerTab, false);
-        statusLabel.setText("Connected to Outline Chat production.");
+        statusLabel.setText("Ready. Enter your username and password.");
     }
 
     @FXML
@@ -106,23 +111,57 @@ public class LoginController {
     private void runAuth(AuthTask task) {
         setBusy(true);
         statusLabel.setText("Connecting...");
+        setConnectionState("reconnecting", "Reconnecting");
         Thread.startVirtualThread(() -> {
             try {
                 task.run();
                 Platform.runLater(() -> {
                     try {
+                        statusLabel.setText("Success. Opening Outline Chat...");
+                        setConnectionState("connected", "Connected");
                         app.showMain(stage);
                     } catch (Exception exception) {
-                        statusLabel.setText(exception.getMessage());
+                        setBusy(false);
+                        statusLabel.setText("Login succeeded, but the app could not open: " + clean(exception));
                     }
                 });
             } catch (Exception exception) {
                 Platform.runLater(() -> {
                     setBusy(false);
-                    statusLabel.setText(exception.getMessage());
+                    setConnectionState("offline", "Offline");
+                    statusLabel.setText(clean(exception));
                 });
             }
         });
+    }
+
+    private void refreshConnectionStatus() {
+        setConnectionState("reconnecting", "Checking server");
+        Thread.startVirtualThread(() -> {
+            try {
+                boolean up = apiClient.health();
+                Platform.runLater(() -> {
+                    connectionAttempts = 0;
+                    setConnectionState(up ? "connected" : "offline", up ? "Connected" : "Offline");
+                });
+            } catch (Exception exception) {
+                Platform.runLater(() -> {
+                    setConnectionState("offline", "Offline");
+                    statusLabel.setText(clean(exception));
+                    scheduleConnectionRetry();
+                });
+            }
+        });
+    }
+
+    private void scheduleConnectionRetry() {
+        if (connectionAttempts >= 3) {
+            return;
+        }
+        connectionAttempts++;
+        PauseTransition retry = new PauseTransition(Duration.seconds(5));
+        retry.setOnFinished(event -> refreshConnectionStatus());
+        retry.play();
     }
 
     private void setBusy(boolean busy) {
@@ -135,6 +174,23 @@ public class LoginController {
     private void setTabActive(Button tab, boolean active) {
         tab.getStyleClass().removeAll("tab-button", "tab-button-active");
         tab.getStyleClass().add(active ? "tab-button-active" : "tab-button");
+    }
+
+    private void setConnectionState(String state, String text) {
+        connectionStatusLabel.setText(text);
+        connectionStatusLabel.getStyleClass().removeAll("connection-connected", "connection-reconnecting", "connection-offline");
+        connectionStatusLabel.getStyleClass().add("connection-" + state);
+    }
+
+    private String clean(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null || message.isBlank()) {
+            return "Unexpected client error. Please try again.";
+        }
+        if (message.toLowerCase().contains("bad credentials")) {
+            return "Invalid username or password.";
+        }
+        return message;
     }
 
     @FunctionalInterface

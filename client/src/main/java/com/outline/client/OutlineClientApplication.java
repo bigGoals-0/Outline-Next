@@ -95,7 +95,17 @@ public class OutlineClientApplication extends Application {
             String password = "password123";
             String message = "Packaged desktop smoke message " + stamp;
             try {
+                boolean invalidLoginVerified = false;
+                try {
+                    apiClient.login("missing" + stamp, "wrong-password", false);
+                } catch (Exception expected) {
+                    invalidLoginVerified = expected.getMessage() != null && !expected.getMessage().isBlank();
+                }
+                boolean invalidLoginResult = invalidLoginVerified;
                 apiClient.register(username, password, "Desktop Smoke");
+                ApiClient loginVerifier = new ApiClient(serverUrl());
+                loginVerifier.login(username, password, true);
+                boolean loginVerified = loginVerifier.currentUser() != null && username.equals(loginVerifier.currentUser().username());
                 apiClient.updateProfile("Desktop Smoke Updated", "Profile save verified from packaged app.", null);
                 ApiClient friendClient = new ApiClient(serverUrl());
                 friendClient.register(friendUsername, password, "Smoke Friend");
@@ -118,8 +128,10 @@ public class OutlineClientApplication extends Application {
                         boolean copyVerified = username.equals(Clipboard.getSystemClipboard().getString());
                         System.out.println("OUTLINE_DESKTOP_SMOKE_SUCCESS username=" + username
                                 + " friend=" + friendUsername
+                                + " login=" + (loginVerified ? "verified" : "failed")
                                 + " profile=updated file=" + attachment.get("originalName")
                                 + " copy=" + (copyVerified ? "verified" : "failed")
+                                + " invalidLogin=" + (invalidLoginResult ? "verified" : "failed")
                                 + " message=\"" + message + "\"");
                     } catch (Exception exception) {
                         System.err.println("OUTLINE_DESKTOP_SMOKE_FAILED " + exception.getMessage());

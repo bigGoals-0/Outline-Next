@@ -49,6 +49,7 @@
             <VBox spacing="16" maxWidth="440" styleClass="auth-card">
                 <Label text="Welcome to Outline Chat" styleClass="auth-title"/>
                 <Label text="Sign in to continue or create a profile in seconds." styleClass="muted"/>
+                <Label fx:id="connectionStatusLabel" text="Checking server" styleClass="connection-reconnecting"/>
                 <HBox spacing="8" styleClass="auth-tabs">
                     <Button fx:id="loginTab" text="Login" onAction="#showLoginMode" styleClass="tab-button-active"/>
                     <Button fx:id="registerTab" text="Register" onAction="#showRegisterMode" styleClass="tab-button"/>

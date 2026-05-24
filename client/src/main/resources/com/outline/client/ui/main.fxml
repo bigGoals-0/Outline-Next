@@ -21,8 +21,8 @@
                 <Button text="Home" onAction="#loadHome" styleClass="nav-button"/>
                 <Button text="Friends" onAction="#loadFriends" styleClass="nav-button"/>
                 <Button text="Chats" onAction="#loadFriends" styleClass="nav-button"/>
+                <Button text="Settings" onAction="#showSettings" styleClass="nav-button"/>
                 <Region VBox.vgrow="ALWAYS"/>
-                <Button text="Profile" onAction="#showProfile" styleClass="nav-button"/>
                 <Button text="Logout" onAction="#logout" styleClass="nav-button"/>
             </VBox>
             <VBox styleClass="center-panel" spacing="14">
@@ -54,6 +54,7 @@
                     <padding><Insets top="18" right="24" bottom="16" left="24"/></padding>
                     <Label fx:id="chatTitle" text="Outline Chat" styleClass="chat-title"/>
                     <Label fx:id="chatSubtitle" text="Recommendations, activity, requests, and quick search" styleClass="muted"/>
+                    <Label fx:id="backendStatusLabel" text="Checking server" styleClass="connection-reconnecting"/>
                 </VBox>
             </top>
             <center>
@@ -85,12 +86,6 @@
                 <Button text="Copy" onAction="#copyDetailUsername" styleClass="copy-button"/>
             </HBox>
             <TextArea fx:id="detailBio" text="Select a friend to view details." editable="false" wrapText="true" prefRowCount="3" styleClass="readonly-area"/>
-            <VBox spacing="8" styleClass="profile-editor">
-                <Label text="Edit your profile" styleClass="section-title"/>
-                <TextField fx:id="profileNameField" promptText="Display name" styleClass="input"/>
-                <TextArea fx:id="profileBioField" promptText="Bio" prefRowCount="4" wrapText="true" styleClass="composer-input"/>
-                <Button text="Save Profile" onAction="#saveProfile" styleClass="primary-button"/>
-            </VBox>
             <Label text="Shared Files" styleClass="section-title"/>
             <ListView fx:id="sharedFiles" VBox.vgrow="ALWAYS" styleClass="file-list"/>
         </VBox>

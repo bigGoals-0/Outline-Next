@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -36,6 +37,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class MainController {
     private final ApiClient apiClient;
@@ -52,18 +54,22 @@ public class MainController {
     @FXML private TextArea messageInput;
     @FXML private Label chatTitle;
     @FXML private Label chatSubtitle;
+    @FXML private Label backendStatusLabel;
     @FXML private Label detailAvatar;
     @FXML private Label detailName;
     @FXML private TextField detailHandle;
     @FXML private TextArea detailBio;
-    @FXML private TextField profileNameField;
-    @FXML private TextArea profileBioField;
     @FXML private ListView<String> sharedFiles;
     @FXML private Button sendButton;
     @FXML private Button acceptButton;
     @FXML private Button declineButton;
     @FXML private Button addFriendButton;
     @FXML private Label toastLabel;
+    private TextField settingsDisplayName;
+    private TextField settingsUsername;
+    private TextField settingsAvatarUrl;
+    private TextArea settingsBio;
+    private int backendStatusAttempts;
 
     public MainController(ApiClient apiClient, Stage stage, OutlineClientApplication app) {
         this.apiClient = apiClient;
@@ -76,16 +82,16 @@ public class MainController {
         UserResponse user = apiClient.currentUser();
         profileLabel.setText(user.displayName());
         profileHandle.setText("@" + user.username());
-        profileNameField.setText(user.displayName());
-        profileBioField.setText(user.bio() == null ? "" : user.bio());
         centerList.setCellFactory(list -> new CenterItemCell());
         centerList.getSelectionModel().selectedItemProperty().addListener((obs, oldItem, item) -> preview(item));
         messageInput.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER && event.isMetaDown()) {
+            if (event.getCode() == KeyCode.ENTER && !event.isShiftDown()) {
+                event.consume();
                 sendMessage();
             }
         });
         setConversationEnabled(false);
+        refreshBackendStatus();
         loadHome();
     }
 
@@ -135,14 +141,14 @@ public class MainController {
     }
 
     @FXML
-    void showProfile() {
+    void showSettings() {
         activeConversation = null;
         setConversationEnabled(false);
         centerList.getItems().setAll(CenterItem.section("Profile"), CenterItem.user("You", apiClient.currentUser()));
-        chatTitle.setText("Profile");
-        chatSubtitle.setText("Update your public identity and bio.");
+        chatTitle.setText("Settings");
+        chatSubtitle.setText("Profile, account identity, theme, and diagnostics");
         showUserDetails(apiClient.currentUser());
-        messagesBox.getChildren().setAll(systemMessage("Use the profile panel on the right to update your display name and bio."));
+        showSettingsPage();
     }
 
     @FXML
@@ -198,14 +204,18 @@ public class MainController {
 
     @FXML
     void saveProfile() {
+        if (settingsDisplayName == null || settingsBio == null) {
+            showSettings();
+            return;
+        }
         run(() -> {
-            UserResponse updated = apiClient.updateProfile(profileNameField.getText(), profileBioField.getText(), null);
+            UserResponse updated = apiClient.updateProfile(settingsDisplayName.getText(), settingsBio.getText(), settingsAvatarUrl.getText());
             Platform.runLater(() -> {
                 profileLabel.setText(updated.displayName());
-                profileNameField.setText(updated.displayName());
-                profileBioField.setText(updated.bio() == null ? "" : updated.bio());
+                profileHandle.setText("@" + updated.username());
                 showUserDetails(updated);
-                showSystem("Profile updated.");
+                showToast("Profile updated");
+                showSettingsPage();
             });
         });
     }
@@ -391,6 +401,63 @@ public class MainController {
         messagesBox.getChildren().add(systemMessage(text));
     }
 
+    private void showSettingsPage() {
+        UserResponse user = apiClient.currentUser();
+        settingsDisplayName = new TextField(user.displayName());
+        settingsDisplayName.getStyleClass().add("input");
+        settingsUsername = new TextField("@" + user.username());
+        settingsUsername.setEditable(false);
+        settingsUsername.getStyleClass().add("copyable-field");
+        settingsAvatarUrl = new TextField(user.profilePictureUrl() == null ? "" : user.profilePictureUrl());
+        settingsAvatarUrl.setPromptText("Profile picture URL");
+        settingsAvatarUrl.getStyleClass().add("input");
+        settingsBio = new TextArea(user.bio() == null ? "" : user.bio());
+        settingsBio.setPromptText("About me");
+        settingsBio.setWrapText(true);
+        settingsBio.setPrefRowCount(4);
+        settingsBio.getStyleClass().add("composer-input");
+
+        Button copyUsername = new Button("Copy Username");
+        copyUsername.getStyleClass().add("secondary-button");
+        copyUsername.setOnAction(event -> copyOwnUsername());
+        Button copyUserId = new Button("Copy User ID");
+        copyUserId.getStyleClass().add("secondary-button");
+        copyUserId.setOnAction(event -> copyText(String.valueOf(user.id()), "User ID copied"));
+        Button save = new Button("Save Profile");
+        save.getStyleClass().add("primary-button");
+        save.setOnAction(event -> saveProfile());
+
+        Label title = new Label("Account settings");
+        title.getStyleClass().add("settings-title");
+        VBox identity = new VBox(10,
+                title,
+                new Label("Display name"),
+                settingsDisplayName,
+                new Label("Username"),
+                new HBox(8, settingsUsername, copyUsername, copyUserId),
+                new Label("Profile picture"),
+                settingsAvatarUrl,
+                new Label("Bio / about me"),
+                settingsBio,
+                save);
+        identity.getStyleClass().add("settings-card");
+
+        VBox theme = new VBox(8,
+                sectionLabel("Theme"),
+                systemMessage("Dark theme is active. Accent colors are optimized for Discord-style contrast."),
+                sectionLabel("Connection"),
+                systemMessage("Backend: " + apiClient.baseUrl()));
+        theme.getStyleClass().add("settings-card");
+
+        messagesBox.getChildren().setAll(identity, theme);
+    }
+
+    private Label sectionLabel(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("section-title");
+        return label;
+    }
+
     private VBox fileCard(AttachmentMeta attachment, boolean mine, Path localAttachment) {
         Label title = new Label(attachment.name());
         title.getStyleClass().add("file-title");
@@ -430,6 +497,40 @@ public class MainController {
     private void setConversationEnabled(boolean enabled) {
         messageInput.setDisable(!enabled);
         sendButton.setDisable(!enabled);
+    }
+
+    private void refreshBackendStatus() {
+        setBackendState("reconnecting", "Reconnecting");
+        Thread.startVirtualThread(() -> {
+            try {
+                boolean up = apiClient.health();
+                Platform.runLater(() -> {
+                    backendStatusAttempts = 0;
+                    setBackendState(up ? "connected" : "offline", up ? "Connected" : "Offline");
+                });
+            } catch (Exception exception) {
+                Platform.runLater(() -> {
+                    setBackendState("offline", "Offline");
+                    scheduleBackendRetry();
+                });
+            }
+        });
+    }
+
+    private void scheduleBackendRetry() {
+        if (backendStatusAttempts >= 3) {
+            return;
+        }
+        backendStatusAttempts++;
+        PauseTransition retry = new PauseTransition(Duration.seconds(5));
+        retry.setOnFinished(event -> refreshBackendStatus());
+        retry.play();
+    }
+
+    private void setBackendState(String state, String text) {
+        backendStatusLabel.setText(text + "  " + apiClient.baseUrl());
+        backendStatusLabel.getStyleClass().removeAll("connection-connected", "connection-reconnecting", "connection-offline");
+        backendStatusLabel.getStyleClass().add("connection-" + state);
     }
 
     private String normalizeUsername(String raw) {
