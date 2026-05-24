@@ -21,13 +21,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.net.ConnectException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class ApiClient {
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(8);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(18);
+    private static final Pattern PASSWORD_FIELD = Pattern.compile("(\"password\"\\s*:\\s*\")([^\"]*)(\")");
+    private static final Pattern TOKEN_FIELD = Pattern.compile("(\"token\"\\s*:\\s*\")([^\"]*)(\")");
+    private static final Pattern SESSION_FIELD = Pattern.compile("(\"sessionToken\"\\s*:\\s*\")([^\"]*)(\")");
     private final String baseUrl;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
     private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
@@ -36,6 +41,8 @@ public class ApiClient {
 
     public ApiClient(String baseUrl) {
         this.baseUrl = baseUrl;
+        log("API client initialized baseUrl=" + baseUrl + " connectTimeout=" + CONNECT_TIMEOUT.toSeconds()
+                + "s requestTimeout=" + REQUEST_TIMEOUT.toSeconds() + "s");
     }
 
     public AuthResponse register(String username, String password, String displayName) throws IOException, InterruptedException {
@@ -43,9 +50,11 @@ public class ApiClient {
         body.put("username", username == null ? "" : username.trim());
         body.put("password", password == null ? "" : password);
         body.put("displayName", displayName == null ? "" : displayName.trim());
+        log("REGISTER start username=" + body.get("username") + " displayName=" + body.get("displayName"));
         AuthResponse response = post("/api/auth/register", body, AuthResponse.class);
         validateAuth(response);
         remember(response);
+        log("REGISTER success username=" + currentUsername() + " userId=" + currentUserId());
         return response;
     }
 
@@ -54,21 +63,28 @@ public class ApiClient {
         body.put("username", username == null ? "" : username.trim());
         body.put("password", password == null ? "" : password);
         body.put("rememberMe", rememberMe);
+        log("LOGIN start username=" + body.get("username") + " rememberMe=" + rememberMe);
         AuthResponse response = post("/api/auth/login", body, AuthResponse.class);
         validateAuth(response);
         remember(response);
+        log("LOGIN success username=" + currentUsername() + " userId=" + currentUserId());
         return response;
     }
 
     public boolean health() throws IOException, InterruptedException {
+        log("HEALTH check start url=" + baseUrl + "/actuator/health method=GET");
         JsonNode node = get("/actuator/health", JsonNode.class);
-        return node.hasNonNull("status") && "UP".equalsIgnoreCase(node.get("status").asText());
+        boolean up = node.hasNonNull("status") && "UP".equalsIgnoreCase(node.get("status").asText());
+        log("HEALTH check result status=" + (up ? "UP" : "NOT_UP") + " body=" + redact(node.toString()));
+        return up;
     }
 
     public void logout() throws IOException, InterruptedException {
+        log("LOGOUT start username=" + currentUsername());
         post("/api/auth/logout", Map.of(), Map.class);
         token = null;
         currentUser = null;
+        log("LOGOUT complete; session cleared");
     }
 
     public HomeResponse home() throws IOException, InterruptedException {
@@ -106,6 +122,7 @@ public class ApiClient {
     }
 
     public MessageResponse sendMessage(Long recipientId, String content) throws IOException, InterruptedException {
+        log("MESSAGE send start recipientId=" + recipientId + " contentLength=" + (content == null ? 0 : content.length()));
         return post("/api/messages", Map.of("recipientId", recipientId, "content", content), MessageResponse.class);
     }
 
@@ -116,16 +133,21 @@ public class ApiClient {
     public Map<String, Object> upload(Path path) throws IOException, InterruptedException {
         String boundary = "OutlineBoundary" + System.nanoTime();
         byte[] fileBytes = Files.readAllBytes(path);
+        String detectedContentType = contentType(path);
+        log("UPLOAD start file=" + path.getFileName() + " sizeBytes=" + fileBytes.length
+                + " contentType=" + detectedContentType + " url=" + baseUrl + "/api/files");
         String head = "--" + boundary + "\r\n"
                 + "Content-Disposition: form-data; name=\"file\"; filename=\"" + path.getFileName() + "\"\r\n"
-                + "Content-Type: " + contentType(path) + "\r\n\r\n";
+                + "Content-Type: " + detectedContentType + "\r\n\r\n";
         String tail = "\r\n--" + boundary + "--\r\n";
         byte[] body = concat(head.getBytes(), fileBytes, tail.getBytes());
         HttpRequest request = base("/api/files")
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body))
                 .build();
-        return mapper.readValue(send(request), new TypeReference<>() {});
+        Map<String, Object> response = mapper.readValue(send(request), new TypeReference<>() {});
+        log("UPLOAD success file=" + response.get("originalName") + " downloadUrl=" + response.get("downloadUrl"));
+        return response;
     }
 
     public UserResponse currentUser() {
@@ -139,6 +161,9 @@ public class ApiClient {
     private void remember(AuthResponse response) {
         this.token = response.token();
         this.currentUser = response.user();
+        log("SESSION stored tokenPresent=" + (token != null && !token.isBlank())
+                + " tokenLength=" + (token == null ? 0 : token.length())
+                + " username=" + currentUsername() + " userId=" + currentUserId());
     }
 
     private void validateAuth(AuthResponse response) throws IOException {
@@ -156,6 +181,7 @@ public class ApiClient {
     }
 
     private <T> T post(String path, Object body, Class<T> type) throws IOException, InterruptedException {
+        logRequestBody("POST", path, body);
         HttpRequest request = base(path)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
@@ -164,6 +190,7 @@ public class ApiClient {
     }
 
     private <T> T put(String path, Object body, Class<T> type) throws IOException, InterruptedException {
+        logRequestBody("PUT", path, body);
         HttpRequest request = base(path)
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
@@ -181,13 +208,21 @@ public class ApiClient {
 
     private String send(HttpRequest request) throws IOException, InterruptedException {
         HttpResponse<String> response;
+        log("HTTP request method=" + request.method() + " url=" + request.uri()
+                + " hasSessionToken=" + (token != null && !token.isBlank()));
         try {
             response = http.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (HttpConnectTimeoutException | ConnectException exception) {
+            log("HTTP connect failure type=" + exception.getClass().getSimpleName()
+                    + " message=" + exception.getMessage() + " url=" + request.uri());
             throw new IOException("Connection timed out. Outline Chat could not reach " + baseUrl + ".");
         } catch (HttpTimeoutException exception) {
+            log("HTTP timeout type=" + exception.getClass().getSimpleName()
+                    + " message=" + exception.getMessage() + " url=" + request.uri());
             throw new IOException("Request timed out. The server is reachable but did not answer quickly enough.");
         }
+        log("HTTP response method=" + request.method() + " url=" + request.uri()
+                + " status=" + response.statusCode() + " body=" + trim(redact(response.body())));
         if (response.statusCode() >= 400) {
             throw new IOException(readError(response.statusCode(), response.body()));
         }
@@ -220,5 +255,42 @@ public class ApiClient {
         System.arraycopy(b, 0, out, a.length, b.length);
         System.arraycopy(c, 0, out, a.length + b.length, c.length);
         return out;
+    }
+
+    private void logRequestBody(String method, String path, Object body) {
+        try {
+            log("HTTP request body method=" + method + " url=" + baseUrl + path
+                    + " body=" + trim(redact(mapper.writeValueAsString(body))));
+        } catch (Exception exception) {
+            log("HTTP request body method=" + method + " url=" + baseUrl + path + " body=<unavailable>");
+        }
+    }
+
+    private String currentUsername() {
+        return currentUser == null ? "<none>" : currentUser.username();
+    }
+
+    private String currentUserId() {
+        return currentUser == null || currentUser.id() == null ? "<none>" : currentUser.id().toString();
+    }
+
+    private String redact(String text) {
+        if (text == null) {
+            return "";
+        }
+        String redacted = PASSWORD_FIELD.matcher(text).replaceAll("$1<redacted>$3");
+        redacted = TOKEN_FIELD.matcher(redacted).replaceAll("$1<redacted>$3");
+        return SESSION_FIELD.matcher(redacted).replaceAll("$1<redacted>$3");
+    }
+
+    private String trim(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.length() <= 700 ? text : text.substring(0, 700) + "...<truncated>";
+    }
+
+    private void log(String message) {
+        System.out.println("[OutlineChat][API][" + Instant.now() + "] " + message);
     }
 }

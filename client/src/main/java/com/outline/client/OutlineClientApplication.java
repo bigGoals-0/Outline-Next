@@ -21,6 +21,8 @@ public class OutlineClientApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        log("Starting Outline Chat serverUrl=" + apiClient.baseUrl() + " desktopSmoke=" + desktopSmokeEnabled());
+        logWebSocketStatus();
         if (desktopSmokeEnabled()) {
             runDesktopSmoke(stage);
             return;
@@ -29,6 +31,7 @@ public class OutlineClientApplication extends Application {
     }
 
     public void showLogin(Stage stage) throws Exception {
+        log("Loading login FXML /com/outline/client/auth/login.fxml");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/outline/client/auth/login.fxml"));
         loader.setControllerFactory(type -> {
             if (type == com.outline.client.auth.LoginController.class) {
@@ -50,6 +53,8 @@ public class OutlineClientApplication extends Application {
     }
 
     public MainController showMain(Stage stage) throws Exception {
+        log("Loading main FXML /com/outline/client/ui/main.fxml");
+        logWebSocketStatus();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/outline/client/ui/main.fxml"));
         loader.setControllerFactory(type -> {
             if (type == com.outline.client.ui.MainController.class) {
@@ -62,6 +67,7 @@ public class OutlineClientApplication extends Application {
         stage.setTitle("Outline Chat");
         stage.setScene(scene);
         stage.show();
+        log("Main window shown for user=" + (apiClient.currentUser() == null ? "<none>" : apiClient.currentUser().username()));
         return loader.getController();
     }
 
@@ -87,6 +93,7 @@ public class OutlineClientApplication extends Application {
     }
 
     private void runDesktopSmoke(Stage stage) throws Exception {
+        log("Desktop smoke test enabled; exercising deployed backend through JavaFX client process.");
         showLogin(stage);
         Thread.startVirtualThread(() -> {
             String stamp = String.valueOf(Instant.now().toEpochMilli());
@@ -145,5 +152,18 @@ public class OutlineClientApplication extends Application {
                 });
             }
         });
+    }
+
+    private void logWebSocketStatus() {
+        String wsUrl = apiClient.baseUrl()
+                .replaceFirst("^https://", "wss://")
+                .replaceFirst("^http://", "ws://")
+                + "/ws";
+        log("WebSocket initialization: desktop client currently uses REST API mode; configured server endpoint would be "
+                + wsUrl);
+    }
+
+    private void log(String message) {
+        System.out.println("[OutlineChat][App][" + Instant.now() + "] " + message);
     }
 }

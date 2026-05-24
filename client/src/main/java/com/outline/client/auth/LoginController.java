@@ -12,6 +12,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.time.Instant;
 
 public class LoginController {
     private final ApiClient apiClient;
@@ -39,6 +40,7 @@ public class LoginController {
 
     @FXML
     void initialize() {
+        log("LoginController initialized for baseUrl=" + apiClient.baseUrl());
         showLoginMode();
         refreshConnectionStatus();
     }
@@ -73,10 +75,12 @@ public class LoginController {
 
     @FXML
     void login() {
+        log("Login button clicked registerMode=" + registerMode + " username=" + safeUsername());
         if (registerMode) {
             showLoginMode();
         }
         if (!validateCredentials(false)) {
+            log("Login validation failed username=" + safeUsername());
             return;
         }
         runAuth(() -> apiClient.login(usernameField.getText(), passwordField.getText(), rememberMe.isSelected()));
@@ -84,11 +88,13 @@ public class LoginController {
 
     @FXML
     void register() {
+        log("Register button clicked registerMode=" + registerMode + " username=" + safeUsername());
         if (!registerMode) {
             showRegisterMode();
             return;
         }
         if (!validateCredentials(true)) {
+            log("Register validation failed username=" + safeUsername());
             return;
         }
         runAuth(() -> apiClient.register(usernameField.getText(), passwordField.getText(), displayNameField.getText()));
@@ -99,33 +105,43 @@ public class LoginController {
         String password = passwordField.getText() == null ? "" : passwordField.getText();
         if (username.length() < 3) {
             statusLabel.setText("Username must be at least 3 characters.");
+            log("Validation error: username too short length=" + username.length());
             return false;
         }
         if (password.length() < 8) {
             statusLabel.setText(registering ? "Password must be at least 8 characters." : "Enter your password.");
+            log("Validation error: password too short registering=" + registering + " length=" + password.length());
             return false;
         }
         return true;
     }
 
     private void runAuth(AuthTask task) {
+        log("Auth flow starting username=" + safeUsername());
         setBusy(true);
         statusLabel.setText("Connecting...");
         setConnectionState("reconnecting", "Reconnecting");
         Thread.startVirtualThread(() -> {
             try {
+                log("Auth background task running username=" + safeUsername());
                 task.run();
+                log("Auth background task succeeded username=" + safeUsername());
                 Platform.runLater(() -> {
                     try {
+                        log("Auth UI success callback; opening main window");
                         statusLabel.setText("Success. Opening Outline Chat...");
                         setConnectionState("connected", "Connected");
                         app.showMain(stage);
+                        log("Main window opened after authentication");
                     } catch (Exception exception) {
+                        log("Main window open failed type=" + exception.getClass().getSimpleName()
+                                + " message=" + exception.getMessage());
                         setBusy(false);
                         statusLabel.setText("Login succeeded, but the app could not open: " + clean(exception));
                     }
                 });
             } catch (Exception exception) {
+                log("Auth failed type=" + exception.getClass().getSimpleName() + " message=" + exception.getMessage());
                 Platform.runLater(() -> {
                     setBusy(false);
                     setConnectionState("offline", "Offline");
@@ -136,15 +152,19 @@ public class LoginController {
     }
 
     private void refreshConnectionStatus() {
+        log("Backend status check scheduled url=" + apiClient.baseUrl());
         setConnectionState("reconnecting", "Checking server");
         Thread.startVirtualThread(() -> {
             try {
                 boolean up = apiClient.health();
+                log("Backend status check finished up=" + up);
                 Platform.runLater(() -> {
                     connectionAttempts = 0;
                     setConnectionState(up ? "connected" : "offline", up ? "Connected" : "Offline");
                 });
             } catch (Exception exception) {
+                log("Backend status check failed type=" + exception.getClass().getSimpleName()
+                        + " message=" + exception.getMessage());
                 Platform.runLater(() -> {
                     setConnectionState("offline", "Offline");
                     statusLabel.setText(clean(exception));
@@ -156,9 +176,11 @@ public class LoginController {
 
     private void scheduleConnectionRetry() {
         if (connectionAttempts >= 3) {
+            log("Backend status retries exhausted");
             return;
         }
         connectionAttempts++;
+        log("Backend status retry scheduled attempt=" + connectionAttempts);
         PauseTransition retry = new PauseTransition(Duration.seconds(5));
         retry.setOnFinished(event -> refreshConnectionStatus());
         retry.play();
@@ -191,6 +213,14 @@ public class LoginController {
             return "Invalid username or password.";
         }
         return message;
+    }
+
+    private String safeUsername() {
+        return usernameField == null || usernameField.getText() == null ? "" : usernameField.getText().trim();
+    }
+
+    private void log(String message) {
+        System.out.println("[OutlineChat][Login][" + Instant.now() + "] " + message);
     }
 
     @FunctionalInterface
